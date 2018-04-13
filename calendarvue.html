@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+      <full-calendar :events="fcEvents" locale="en"></full-calendar>
+
+  </div>
+  <script src="http://cdn.jsdelivr.net/vue/1.0.17/vue.min.js"></script>
+  <script>
+  // Your entry index.js
+import Vue from 'vue'
+import App from './App'
+
+import fullCalendar from 'vue-fullcalendar'
+var demoEvents = [
+	{
+      title : 'Sunny Out of Office',
+      start : '2016-08-25',
+      end : '2017-07-27'
+    }
+]
+Vue.component('full-calendar', fullCalendar)
+
+// Vue2
+new Vue({
+  el : '#app',
+  render: h => h(App),
+  template : '<App/>',
+  components : {
+    App
+  },
+  data:{
+    fcEvents : demoEvents
+  }
+})
+
+//Vue1
+
+new Vue({
+	el : 'body',
+	components : {
+		App
+	}
+})
+  
+  </script>
+</body>
+</html>
