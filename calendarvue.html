@@ -4,51 +4,396 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Calendar</title>
 </head>
+<style>
+  .container {
+    
+  }
+  footer{
+ 
+  }
+  .active{
+    background: yellow;
+  }
+  .experimental{
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    width: calc(40px * 7);
+  }
+  .big{
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    width: 700px;
+  }
+  .med{
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    width: 560px;
+  }
+  .small{
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    width: 420px;
+  }
+  .calendar{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    /* width: 700px; */
+    width: calc(100px * 7);
+    margin: auto;
+  }
+  .day{
+    border: 1px solid black;
+    /* width: 200px; */
+    height: 100px;
+    font-size: .4em;
+    font-weight: 900;
+  }
+  .event{
+    font-size: .6em;
+    color: #000;
+    background: tomato;
+    width: 50%;
+    border-radius: 5px;
+  }
+</style>
 <body>
-  <div id="app">
-      <full-calendar :events="fcEvents" locale="en"></full-calendar>
+<div id="app">
+<!-- <div class="testfor">
+  <p v-for="(x, i) in 10">x= {{x}} i= {{i}}</p>
+</div> -->
+<header>
+<h1>{{title}}</h1>
+</header>
+<nav>
 
+</nav>
+<section id="sect1" class="container">
+ <h1>Calendar View Right Day?</h1>
+ <h2>{{lastSunday}}</h2>
+<div class="calendar" @click.prevent="addEvent($event)">
+  <div class="day" v-for="(d, i) in daysDisplayed" >
+    {{ i + 1 }}
+    <!-- <button v-for="b in Object.entries()"> {{b.name}} </button> -->
   </div>
-  <script src="https://vuejs.org/js/vue.min.js"></script>
-  <script>
-  // Your entry index.js
-import Vue from 'vue'
-import App from './App'
+</div>
+</section>
+<section id="cities" class="container">
+    <h1>Cities</h1>
+   
+</section>
+<section id="sect3" class="container">
+    <h1>Section Three</h1>
+</section>
+<section id="sect4" class="container">
+    <h1>Section Four</h1>
+</section>
+<footer>
+  &copy; {{today.getFullYear()}} Brian K Carlson
+</footer>
 
-import fullCalendar from 'vue-fullcalendar'
-var demoEvents = [
-	{
-      title : 'Sunny Out of Office',
-      start : '2016-08-25',
-      end : '2017-07-27'
-    }
-]
-Vue.component('full-calendar', fullCalendar)
 
-// Vue2
-new Vue({
-  el : '#app',
-  render: h => h(App),
-  template : '<App/>',
-  components : {
-    App
+
+
+
+  <!-- end of app -->
+  <!-- end of app -->
+  <!-- end of app -->
+</div>
+<!-- component template -->
+<script type="text/x-template" id="grid-template">
+  <div>
+    <h1> A Grid Template </h1>
+
+ </div>
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<script>
+     
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+  const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+  "Saturday"];
+    // register the grid component
+Vue.component('basic-grid', {
+  template: '#grid-template',
+  props: {
+    data: Array,
+    columns: Array,
+    filterKey: String
   },
-  data:{
-    fcEvents : demoEvents
+  data: function () {
+    var sortOrders = {}
+    this.columns.forEach(function (key) {
+      sortOrders[key] = 1
+    })
+    return {
+      sortKey: '',
+      sortOrders: sortOrders,
+      searchKey: '',
+        currentPage: 0,
+        itemsPerPage: 25,
+        resultCount: 0
+    }
+  },
+  computed: {
+    visable: function(){
+     // if (this.resultCount == 0) return false;
+      if (this.resultCount < this.itemsPerPage) return false;
+      return true;
+    },
+    totalPages: function() {
+          return Math.ceil(this.resultCount / this.itemsPerPage)
+        },
+    filteredData: function () {
+      var sortKey = this.sortKey
+      var filterKey = this.filterKey && this.filterKey.toLowerCase()
+      var order = this.sortOrders[sortKey] || 1
+      var data = this.data
+      if (filterKey) {
+        data = data.filter(function (row) {
+          return Object.keys(row).some(function (key) {
+            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+          })
+        })
+      }
+      if (sortKey) {
+        data = data.slice().sort(function (a, b) {
+          a = a[sortKey]
+          b = b[sortKey]
+          return (a === b ? 0 : a > b ? 1 : -1) * order
+        })
+      }
+      return this.paginate(data)
+      // return data
+    }
+  },
+  filters: {
+    capitalize: function (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
+    },
+   
+  },
+  methods: {
+    paginate: function(list) {
+           // if (list.length == 0) return []
+            this.resultCount = list.length
+            if (this.currentPage >= this.totalPages) {
+
+              this.currentPage = this.totalPages - 1
+              if (this.currentPage < 0) this.currentPage = 1
+            } 
+            var index = this.currentPage * this.itemsPerPage
+          
+            return list.slice(index, index + this.itemsPerPage)
+        },
+    sortBy: function (key) {
+      this.sortKey = key
+      this.sortOrders[key] = this.sortOrders[key] * -1
+    },
+    setPage: function(pageNumber) {
+          this.currentPage = pageNumber
+        }
   }
 })
 
-//Vue1
 
-new Vue({
-	el : 'body',
-	components : {
-		App
-	}
-})
+
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    title: "Calendar Vue",
+    today: new Date(),
+    daysDisplayed: 42,
+    active: false,
+    lastSunday: '',//new Date(),
+    meetingsLimit: 10,
+    meetings: [],
+    searchQuery: '',
+    gridColumns: ['name', 'power'],
+    gridData: [
+      { name: 'Chuck Norris', power: Infinity },
+      { name: 'Bruce Lee', power: 9000 },
+      { name: 'Jackie Chan', power: 7000 },
+      { name: 'Jet Li', power: 8000 }
+    ],
+    dayElements: null,
+    eventList: [],
+    pendingEvent: {},
+    eventDays: [],
+    dayElList: []
+
+},
+watch: {
+  dayElements: {
+      handler: function (value) {
+        //todoStorage.save(todos)
+        console.log(`day elemnts changed ${value}`)
+      },
+      deep: true
+    },
+},
+methods: {
+  addEvent: function(e){
+    console.log("add Event to " + e.target.innerText + "  id= " + e.target.id)
+    // var node = document.createElement("BUTTON");                 // Create a <button> node
+    // node.classList.add = "event"
+    // var textnode = document.createTextNode("Event");         // Create a text node
+    // node.appendChild(textnode);                              // Append the text to <button>
+    // *****************
+    // *****************
+    // this won't work because it's a rendered template
+    //  will have to declare the events in the template and just add the event to an event list
+    // *****************
+    // *****************
+    // document.getElementById(e.target.id).appendChild(node); 
+        // Append <button> to date grid
+    var eventId = e.target.id // eventId is for all events on this day
+    const event = {
+      "name": "Event " + this.eventDays.length,
+      "id": this.eventList.length,
+      "dayId": e.target.id,
+      "date": new Date()
+    }
+    this.eventDays.push(event)
+    document.getElementById(e.target.id).innerHTML += `<p class='event' data-event-key='${event.id}'>${event.name}</p>`
+
+  },
+  markToday: function(){
+
+  },
+  fetchCites: function(){
+    console.time("getCities")
+    var url = 'http://127.0.0.1:5501/cities.json'
+    // var url = 'https://gist.github.com/Miserlou/c5cd8364bf9b2420bb29#file-cities-json'
+    // var url = 'https://moonstrider.com/meetings/?miles=4'
+    fetch(url)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+      // console.table(myJson);
+      console.timeEnd("getCities")
+        app.$data.cities = myJson
+        //console.dir(JSON.stringify(app.$data.meetings[0], null, 4))
+      });
+  },
+  daysInMonth: function (month, year) {
+  return new Date(year, month, 0).getDate();
+  },
+  startTimer: function(){
+    var self = this;
+    setInterval(function(){
+      self.today = new Date()
+    },1000)
+  },
+  monthdayname: function(value){
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var valueName = this.today.getDate() - value;
+    var result = new Date(this.today)
+    result.setDate(result.getDate() + valueName)
+    return days[result.getDay()].substr(0,1)
+        
+  },
+  setGridLabels: function(dayElements){
+    const countOfDayElements = dayElements.length
+    if (countOfDayElements > 1){
+      var d = new Date()//self.today
+      d.setDate(d.getDate() - d.getDay()) // magic to get last sunday's date
+      this.lastSunday = d.toDateString()
+   //   console.log(`lastSunday = ${this.lastSunday}` )
+      for (i = 0; i < countOfDayElements; i++) { 
+        // if it is todays grid then mark it
+        if (d.toDateString() == this.today.toDateString()){
+          console.log(`found today in grid${d.toDateString()}`)
+          dayElements[i].classList.add("active")
+        }
+        // set id on each element id = "id20180331" should be unique since there is only one of them
+        let y = d.getFullYear()
+        let m = d.getMonth()
+        m = m < 10 ? "0" + m : m * 1
+        let day = d.getDate();
+        day = day < 10 ? "0" + day : day * 1
+        let id = `id${y}${m}${day}` 
+        dayElements[i].id = id
+        var name = DAY_NAMES[d.getDay()].substr(0,3)
+        var daynum = d.getDate()
+        var month = MONTH_NAMES[d.getMonth()]
+        dayElements[i].innerText = name + "   " + month + " " + daynum
+        d.setDate(d.getDate() + 1) // advance d to next Date
+      }
+    }// end if .days have been rendered
+  }
+},
+computed: {
+  events: function(){
+    var self = this
+    var arg = this.pendingEvent.dayId
+    return this.eventList.filter(function(e){
+      return e.dayId == arg
+    })
+  },
+  filteredMeetings: function(){
+
+    return this.meetings.filter(m => {
+      return m.day == 0
+    })
+  },
   
-  </script>
+},
+filters: {
+  
+monthname: function (value) {
+  if (!value) return ''
+  // value = value.toString()
+  return MONTH_NAMES[value-1 ].substr(0,3)
+},
+dayname: function(value){
+  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var valueName = app.$data.today.getDate() - value;
+  var result = new Date(app.$data.today)
+  result.setDate(result.getDate() + valueName)
+  return days[result.getDay()].substr(0,1)
+}
+},
+created(){
+ 
+},
+mounted(){
+  console.log("mounted........")
+  // this.startTimer();
+// calc lastSunday
+// d.setDate(d.getDate() + 1)
+// d.setDate(d.getDate() - d.getDay())
+// check if all document days have been rendered
+const dElements = document.querySelectorAll(".day")
+for(i=0; i<dElements.length; i++){
+  this.dayElList.push(dElements[i])
+}
+if (dElements.length < 10){
+  console.log(`.days have not been rendered days = ${dElements.length}`)
+} else {
+  console.log(`.days have been rendered days = ${dElements.length}`)
+
+}
+this.setGridLabels(dElements)
+
+
+
+  // console.time("getMeetings")
+  // var url = 'https://moonstrider.com/meetings/?miles=4'
+  // fetch(url)
+  //   .then(function(response) {
+  //     return response.json();
+  //   })
+  //   .then(function(myJson) {
+  //   // console.table(myJson);
+  //   console.timeEnd("getMeetings")
+  //     app.$data.meetings = myJson
+  //     console.dir(JSON.stringify(app.$data.meetings[0], null, 4))
+  //     app.fetchCites();
+  //   });
+}
+  })
+</script>
 </body>
 </html>
