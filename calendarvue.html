@@ -110,7 +110,7 @@
         </div>
       </div>
     <div class="days-container month-grid" @click.prevent="dayClick($event)" ref="calender">
-      <div class="day" v-for="(day, i) in 35" :key="i+1" ref="i">
+      <div class="day" v-for="(day, i) in 35" :key="i+1" ref="i" id="i">
         <span></span>
         <div class="hours-grid" v-show="calendarView == 'Day'" ref="hoursgrid">
           <div class="hour" v-for="i in 16">
