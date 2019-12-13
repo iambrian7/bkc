@@ -24,7 +24,7 @@
   }
   .day{
     border: 1px solid black;
-    font-size: .6em;
+    /* font-size: .6em; */
     height: 100px;
     overflow-y: auto;
   }
@@ -83,7 +83,6 @@
   @media screen and (max-width: 700px) {
     .section1{
       flex-direction: column;
-      /* grid-template-columns: 1fr; */
     }
   }  /* end of min-width: 600px */
 </style>
@@ -117,10 +116,6 @@
             {{ i+5 }}:00
           </div>
         </div>
-        <!-- <div class="event" v-for="e in events">
-          {{ e.name }} 
-        </div> -->
-        <!-- {{day}} -->
       </div>
     </div>
   </div>
@@ -159,19 +154,17 @@
           // now fill out data in calendarDays
 
         //  this.$refs.i['1'].innerText += " hell0"
-          console.log("day 1 = " + d.toLocaleString())
+          // console.log("day 1 = " + d.toLocaleString())
           this.$refs.i.forEach(element => {
             this.calendarDays.push(d.toLocaleDateString())
             element.querySelector("span").innerText =  DAY_NAMES[d.getDay()].substr(0,3) + " " +
                  MONTH_NAMES[d.getMonth()].substr(0,3) + " " + d.getDate()
             if (d.getDate() == this.today.getDate()){
               element.style.background = "#e4e4e4"
-              // element.querySelector("span").style.background = "yellow"
               element.querySelector("span").style.fontSize = "1.2em"
-
             }
             d.setDate(d.getDate() + 1) // next day
-          console.log("next day = " + d.toLocaleString())
+          // console.log("next day = " + d.toLocaleString())
           });
           this.gridInfo = `${this.calendarDays[0]} to ${this.calendarDays[6]}`
         },
@@ -180,32 +173,19 @@
           switch(mode) {
               case "Month":
                   this.$refs["calender"].classList.add("month-grid")
-                  // this.$refs["hoursgrid"].display = "none"
                   break;
               case "Week":
                   this.$refs["calender"].classList.remove("month-grid")
-                  // this.$refs["hoursgrid"].display = "none"
                   break;
               case "Day":
                   this.$refs["calender"].classList.remove("month-grid")
-
-                  // this.$refs["hoursgrid"].forEach(h => {
-                  //   h.style.display = "block"
-                  // })
-                 
                   break;
               default:
                   
           }
-          // this.$refs["calender"].classList.toggle("month-grid")
-          // if (this.$refs["calender"].classList.contains("month-grid")){
-          //   this.$refs["toggleCalendar"].innerText = "Week"
-          // } else {
-          //   this.$refs["toggleCalendar"].innerText = "Month" 
-          // }
         },
         dayClick: function(e){
-          console.log("day clicked = " + e.target.id)
+          // console.log("day clicked = " + e.target.id)
          // console.log("day clicked = " + e.target.id)
          this.events.push({
            name: this.events.length,
